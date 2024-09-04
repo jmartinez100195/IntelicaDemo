@@ -1,6 +1,6 @@
 ﻿namespace Intelica.Authentication.API.DTO
 {
-    public class AuthenticateQuery
-    {
-    }
+    public record AuthenticateQuery( );
+    public record ChallengeCodeQuery();
+    public record PublicKeyResponse( string publicKey );
 }
