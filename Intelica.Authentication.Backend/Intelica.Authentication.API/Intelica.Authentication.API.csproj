@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Intelica.Infrastructure.Library" Version="1.0.24" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SQLServer" Version="8.0.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
