@@ -2,11 +2,8 @@
 {
     public interface IGenericRSA
     {
-        KeyValuePair<string, string> GetPublicKey();
-        string GetPublicKeyXML();
+        KeyValuePair<string, string> GetKeys();
         string Decript(string privateKey, string value);
         string Encript(string publicKey, string value);
-        string DecriptXML(string privateKey, string value);
-        string EncriptXML(string publicKey, string value);
     }
 }

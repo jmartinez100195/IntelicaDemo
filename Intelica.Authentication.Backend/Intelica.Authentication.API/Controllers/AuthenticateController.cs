@@ -13,7 +13,7 @@ namespace Intelica.Authentication.API.Controllers
         [HttpGet]
         public IActionResult GetPublicKey()
         {
-            var keyValue = customRSA.GetPublicKey();
+            var keyValue = customRSA.GetKeys();
             return Ok(new { publicKey = keyValue.Key });
         }
         [HttpPost]
@@ -25,8 +25,8 @@ namespace Intelica.Authentication.API.Controllers
             return Ok(response);
         }
         [HttpPost]
-        public IActionResult RefresToken() { 
-
+        public IActionResult RefresToken() {
+            return Ok();
         }
         [HttpGet]
         [Route("{value}")]
