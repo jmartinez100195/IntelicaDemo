@@ -7,15 +7,16 @@ namespace Intelica.Authentication.API.Domain.Infrastructure
     {
         public BussinesUserResponse? FindByCredentials(string businessUserEmail, string businessUserPassword)
         {
-            var q = from businessUser in context.BusinessUsers.Where(x => x.BusinessUserEmail.Equals(businessUserEmail) && x.BusinessUserPassword.Equals(businessUserPassword))
-                    select new BussinesUserResponse(businessUser.BusinessUserID, $"{businessUser.BusinessUserLastName}, {businessUser.BusinessUserName}", businessUser.BusinessUserEmail,
-                     (from businessUserPage in context.BusinessUserPages.Where(x => x.BusinessUserPageID.Equals(businessUser.BusinessUserID))
-                      select new BusinessUserPageResponse(businessUserPage.PageID,"",businessUserPage.BusinessUserPageCanUpdate, businessUserPage.BusinessUserPageCanCreate, businessUserPage.BusinessUserPageCanDelete)
-                      ).ToList()
-                    );
-            var list = q.ToList();
-            if (!list.Any()) return null;
-            return q.First();
+            return new BussinesUserResponse(Guid.NewGuid(), "Espejo Huerta, Carlos Rufino", "carlos.espejo@intelica.com", [new(Guid.NewGuid(), "Bank", true, true, true), new(Guid.NewGuid(), "Page", true, true, true)]);
+            //var q = from businessUser in context.BusinessUsers.Where(x => x.BusinessUserEmail.Equals(businessUserEmail) && x.BusinessUserPassword.Equals(businessUserPassword))
+            //        select new BussinesUserResponse(businessUser.BusinessUserID, $"{businessUser.BusinessUserLastName}, {businessUser.BusinessUserName}", businessUser.BusinessUserEmail,
+            //         (from businessUserPage in context.BusinessUserPages.Where(x => x.BusinessUserPageID.Equals(businessUser.BusinessUserID))
+            //          select new BusinessUserPageResponse(businessUserPage.PageID, "", businessUserPage.BusinessUserPageCanUpdate, businessUserPage.BusinessUserPageCanCreate, businessUserPage.BusinessUserPageCanDelete)
+            //          ).ToList()
+            //        );
+            //var list = q.ToList();
+            //if (!list.Any()) return null;
+            //return q.First();
         }
     }
 }

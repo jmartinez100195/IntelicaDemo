@@ -1,10 +1,20 @@
 ﻿using Intelica.Infrastructure.Library.Cache.Interface;
 using System.Security.Cryptography;
 using System.Text;
-namespace Intelica.Authentication.API.Encriptation
+namespace Intelica.Authentication.API.Common.Encriptation
 {
     public class GenericRSA(IGenericCache genericCache) : IGenericRSA
     {
+        public string Encript(string publicKey, string value)
+        {
+            var publicKeyBytes = Convert.FromBase64String(publicKey);
+            using var rsa = RSA.Create();
+            rsa.ImportSubjectPublicKeyInfo(publicKeyBytes, out _);
+            var textBytes = Encoding.ASCII.GetBytes(value);
+            var encriptedTextBytes = rsa.Encrypt(textBytes, RSAEncryptionPadding.Pkcs1);
+            var encriptedText = Convert.ToBase64String(encriptedTextBytes);
+            return encriptedText;
+        }
         public string Decript(string privateKey, string value)
         {
             var privateKeyBytes = Convert.FromBase64String(privateKey);
@@ -14,8 +24,6 @@ namespace Intelica.Authentication.API.Encriptation
             var decryptedTextBytes = rsa.Decrypt(encryptedTextBytes, RSAEncryptionPadding.Pkcs1);
             var decryptedText = Encoding.UTF8.GetString(decryptedTextBytes);
             return decryptedText;
-
-
         }
         public string DecriptXML(string privateKey, string value)
         {
@@ -26,29 +34,30 @@ namespace Intelica.Authentication.API.Encriptation
             var decryptedTextBytes = rsa.Decrypt(encryptedTextBytes, RSAEncryptionPadding.Pkcs1);
             var decryptedText = Encoding.UTF8.GetString(decryptedTextBytes);
             return decryptedText;
-
-
         }
-        public string Encript(string publicKey, string value)
+        public string EncriptXML(string publicKey, string value)
         {
-           // var publickKeyBytes = Convert.FromBase64String(publicKey);
+            // var publickKeyBytes = Convert.FromBase64String(publicKey);
             using var rsa = new RSACryptoServiceProvider();
             rsa.FromXmlString(publicKey);
             var textBytes = Encoding.ASCII.GetBytes(value);
             var encryptedTextBytes = rsa.Encrypt(textBytes, false);
-            var encryptedText = Convert.ToBase64String(encryptedTextBytes) ;
+            var encryptedText = Convert.ToBase64String(encryptedTextBytes);
             return encryptedText;
         }
-        public string GetPublicKey()
+        public KeyValuePair<string, string> GetPublicKey()
         {
             using var rsa = RSA.Create(2048);
-
-            string publicKey = rsa.ToXmlString(false); // Solo la clave pública
+            var privateKey = Convert.ToBase64String(rsa.ExportPkcs8PrivateKey());
+            var publicKey = Convert.ToBase64String(rsa.ExportSubjectPublicKeyInfo());
+            genericCache.Set(privateKey, publicKey);
+            return new KeyValuePair<string, string>(publicKey, privateKey);
+        }
+        public string GetPublicKeyXML()
+        {
+            using var rsa = RSA.Create(2048);
+            string publicKey = rsa.ToXmlString(false);
             string privateKey = rsa.ToXmlString(true);
-
-
-            //var privateKey = Convert.ToBase64String(rsa.ExportPkcs8PrivateKey());
-            //var publicKey = Convert.ToBase64String(rsa.ExportSubjectPublicKeyInfo());
             genericCache.Set(privateKey, publicKey);
             return publicKey;
         }
