@@ -3,6 +3,6 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
 {
     public interface IAuthenticationRepository
     {
-        BussinesUserResponse? FindByCredentials(string businessUserEmail, string businessUserPassword);
+        BussinesUserResponse? FindByEmail(string businessUserEmail);
     }
 }

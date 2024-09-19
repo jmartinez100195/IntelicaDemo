@@ -4,6 +4,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
     public interface IAuthenticatorAggregate
     {
         BussinesUserResponse? ValidateCredentials(string businessUserEmail, string businessUserPassword, string publicKey);
-        AuthenticationResponse GenerateToken(BussinesUserResponse businessUserResponse);
+        AuthenticationResponse GenerateToken(BussinesUserResponse businessUserResponse, string clientID);
+        ValidTokenResponse ValidToken(string token, string pageRoot, string httpVerb);
     }
 }

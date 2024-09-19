@@ -1,7 +1,10 @@
 ﻿using Intelica.Authentication.API.Common.Encriptation;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
-using Intelica.Authentication.API.Domain.Infrastructure;
+using Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastructure;
+using Intelica.Authentication.API.Domain.ClientAggregate.Application;
+using Intelica.Authentication.API.Domain.ClientAggregate.Application.Interfaces;
+using Intelica.Authentication.API.Domain.ClientAggregate.Infrastructure;
 using Intelica.Infrastructure.Library.Cache;
 using Intelica.Infrastructure.Library.Cache.Interface;
 using Intelica.Infrastructure.Library.GenericApi;
@@ -26,6 +29,8 @@ namespace Intelica.Security.API.Extensions
             services.AddTransient<IGenericRSA, GenericRSA>();
 			services.AddTransient<IAuthenticatorAggregate, AuthenticatorAggregate>();
 			services.AddTransient<IAuthenticationRepository, AuthenticationSQLServerRepository>();
+            services.AddTransient<IClientAggregate, ClientAggregate>();
+            services.AddTransient<IClientRepository, ClientSQLRepository>();
             return services;
 		}
 	}
