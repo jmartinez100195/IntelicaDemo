@@ -1,20 +1,13 @@
-﻿using Intelica.Authentication.API.Common.DTO;
-using Intelica.Authentication.API.Common.Encriptation;
+﻿using Intelica.Authentication.API.Common.Encriptation;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
 using Intelica.Authentication.API.Domain.ClientAggregate.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Principal;
 namespace Intelica.Authentication.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AuthenticateController(IGenericRSA customRSA, IAuthenticatorAggregate authenticator, IClientAggregate client,
-    IOptionsSnapshot<RSAConfiguration> rsaConfiguration) : Controller
+    public class AuthenticateController(IGenericRSA customRSA, IAuthenticatorAggregate authenticator, IClientAggregate client) : Controller
     {
         [HttpGet]
         public IActionResult GetPublicKey()
@@ -45,17 +38,6 @@ namespace Intelica.Authentication.API.Controllers
         public IActionResult RefresToken()
         {
             return Ok();
-        }
-        [HttpGet]
-        [Route("{value}")]
-        public IActionResult EdDecrypt(string value)
-        {
-            var encryptedValue = customRSA.Encript(rsaConfiguration.Value.PublicKey, value);
-            var decryptedValue = customRSA.Decript(rsaConfiguration.Value.PrivateKey, encryptedValue);
-            //var key = customRSA.GetPublicKey();
-            //var encryptedValue = customRSA.Encript(key.Key, value);
-            //var decryptedValue = customRSA.Decript(key.Value, encryptedValue);
-            return Ok(value == decryptedValue);
         }
         [HttpGet]
         [Route("ValidToken/{pageRoot}/{httpVerb}")]

@@ -7,7 +7,7 @@
         public string ClientRedirectUrl { get; private set; }
         public bool IsValid(string clientRedirectUrl)
         {
-            return ClientRedirectUrl.Replace("/","").Trim() == clientRedirectUrl.Replace("/","").Trim();
+            return clientRedirectUrl.StartsWith(ClientRedirectUrl);
         }
     }
 }

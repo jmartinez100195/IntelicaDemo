@@ -31,7 +31,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                 issuer: "auth.intelica.com",
                 audience: clientID,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(5),
+                expires: DateTime.Now.AddMinutes(60),
                 signingCredentials: credentials
             );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -51,7 +51,6 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             }
             return null;
         }
-
         public ValidTokenResponse ValidToken(string token, string pageRoot, string httpVerb)
         {
             if (token.Contains("Bearer")) token = token.Replace("Bearer ", "");
@@ -74,16 +73,16 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                 else
                 {
                     var access = JsonSerializer.Deserialize<Access>(accessClaim.Value);
-                    if (httpVerb.Equals("Post") && !access.CanCreate) { return new ValidTokenResponse(true, false, $"No tiene acceso a crear objetos en el recurso {pageRoot} "); }
-                    if ((httpVerb.Equals("Put") || httpVerb.Equals("Patch")) && !access.CanUpdate) { return new ValidTokenResponse(true, false, $"No tiene acceso a actualizar objetos en el recurso {pageRoot} "); }
-                    if (httpVerb.Equals("Delete") && !access.CanDelete) { return new ValidTokenResponse(true, false, $"No tiene acceso a eliminar objetos en el recurso {pageRoot} "); }
+                    if (httpVerb.Equals("POST") && !access.CanCreate) { return new ValidTokenResponse(true, false, $"No tiene acceso a crear recursos {pageRoot} "); }
+                    if ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && !access.CanUpdate) { return new ValidTokenResponse(true, false, $"No tiene acceso a modificar el recurso {pageRoot} "); }
+                    if (httpVerb.Equals("DELETE") && !access.CanDelete) { return new ValidTokenResponse(true, false, $"No tiene acceso a eliminar objetos en el recurso {pageRoot} "); }
                 }
             }
             catch (Exception ex)
             {
-                return new ValidTokenResponse(true, false, ex.Message );
+                return new ValidTokenResponse(false, false, ex.Message );
             }
-            return new ValidTokenResponse(true, false, $"No tiene acceso al recurso {pageRoot} ");
+            return new ValidTokenResponse(true, true, "");
         }
     }
 }
