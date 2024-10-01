@@ -1,4 +1,5 @@
 ﻿using Intelica.Authentication.API.Common.EFCore.Configuration;
+using Intelica.Authentication.API.Domain.AuthenticationAggregate.Domain;
 using Intelica.Authentication.API.Domain.BusinessUserAggregate.Domain;
 using Intelica.Authentication.API.Domain.ClientAggregate.Domain;
 using Intelica.Authentication.API.Domain.PageAggegate.Domain;
@@ -11,6 +12,7 @@ namespace Intelica.Security.Domain.Common.EFCore
         public DbSet<BusinessUserPage> BusinessUserPages { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Page> Pages { get; set; }
+        public DbSet<AccessInformation> AccessInformation { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.ApplyConfiguration(new ClientConfiguration());
@@ -18,6 +20,7 @@ namespace Intelica.Security.Domain.Common.EFCore
             modelBuilder.ApplyConfiguration(new BusinessUserPageConfiguration());
             modelBuilder.ApplyConfiguration(new ClientConfiguration());
             modelBuilder.ApplyConfiguration(new PageConfiguration());
+            modelBuilder.ApplyConfiguration(new AccessInformationConfiguration());
         }
 	}
 }
