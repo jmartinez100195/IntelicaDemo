@@ -2,6 +2,8 @@
 using Intelica.Authentication.API.Common.Encriptation;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
+using Intelica.Authentication.API.Domain.AuthenticationAggregate.Domain;
+using Intelica.Authentication.API.Domain.ClientAggregate.Application.Interfaces;
 using Intelica.Infrastructure.Library.Cache.Interface;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -12,10 +14,62 @@ using System.Text;
 using System.Text.Json;
 namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
 {
-    public class AuthenticatorAggregate(IGenericCache genericCache, IGenericRSA genericRSA, IAuthenticationRepository repository,
+    public class AuthenticatorAggregate(IGenericCache genericCache, IGenericRSA genericRSA, IClientAggregate client, IAuthenticationRepository repository,
     IOptionsSnapshot<JWTConfiguration> jwtConfiguration, IOptionsSnapshot<RSAConfiguration> rsaConfiguration) : IAuthenticatorAggregate
     {
-        public AuthenticationResponse GenerateToken(BussinesUserResponse businessUserResponse, string clientID)
+        public AuthenticationResponse ValidateAuthentication(AuthenticationQuery authenticationQuery, string ip)
+        {
+            if (!client.IsValid(authenticationQuery.ClientID, authenticationQuery.CallBack)) return new AuthenticationResponse("", "", false);
+            var businessUser = ValidateCredentials(authenticationQuery.BusinessUserEmail, authenticationQuery.BusinessUserPassword, authenticationQuery.PublicKey);
+            if (businessUser == null) return new AuthenticationResponse("", "", false);
+            var token = GenerateToken(businessUser, ip, authenticationQuery.ClientID);
+            var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
+            return new AuthenticationResponse(token, refreshToken, true); ;
+        }
+        public RefreshTokenResponse ValidateRefreshToken(Guid refreshToken, string businessUserEmail, string clientID, string ip)
+        {
+            var accesInformation = repository.FindAccessInformation(refreshToken);
+            if (accesInformation == null) return new RefreshTokenResponse(false, false, "");
+            if (!accesInformation.IP.Equals(ip)) return new RefreshTokenResponse(false, false, "");
+            if (DateTime.Now > accesInformation.ExpirationDate) return new RefreshTokenResponse(true, true, "");
+            var businessUser = repository.FindByEmail(businessUserEmail);
+            var token = GenerateToken(businessUser, ip, clientID);
+            return new RefreshTokenResponse(true, true, token);
+        }
+        public ValidTokenResponse ValidateToken(string token, string pageRoot, string httpVerb)
+        {
+            if (token.Contains("Bearer")) token = token.Replace("Bearer ", "");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(jwtConfiguration.Value.Key);
+            try
+            {
+                IPrincipal principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+                var accessClaim = jwtSecurityToken.Claims.SingleOrDefault(x => x.Type.Equals(pageRoot));
+                if (accessClaim == null) return new ValidTokenResponse(true, false);
+                else
+                {
+                    var access = JsonSerializer.Deserialize<Access>(accessClaim.Value);
+                    if (httpVerb.Equals("POST") && !access.CanCreate) { return new ValidTokenResponse(true, false); }
+                    if ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && !access.CanUpdate) { return new ValidTokenResponse(true, false); }
+                    if (httpVerb.Equals("DELETE") && !access.CanDelete) { return new ValidTokenResponse(true, false); }
+                }
+            }
+            catch
+            {
+                return new ValidTokenResponse(false, false);
+            }
+            return new ValidTokenResponse(true, true);
+        }
+        #region Private
+        private string GenerateToken(BussinesUserResponse businessUserResponse, string ip, string clientID)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.Value.Key));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -31,13 +85,20 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                 issuer: "auth.intelica.com",
                 audience: clientID,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(60),
+                expires: DateTime.Now.AddMinutes(10),
                 signingCredentials: credentials
             );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return new AuthenticationResponse(jwt, "", true, "");
+            return jwt;
         }
-        public BussinesUserResponse? ValidateCredentials(string businessUserEmail, string businessUserPassword, string publicKey)
+        private string GenerateRefreshToken(Guid businessUserID, string ip)
+        {
+            var accesInformation = new AccessInformation(businessUserID, ip, DateTime.Now.AddMinutes(720));
+            repository.CreateAccessInformation(accesInformation);
+            repository.SaveChanges();
+            return accesInformation.AccessInformationID.ToString();
+        }
+        private BussinesUserResponse? ValidateCredentials(string businessUserEmail, string businessUserPassword, string publicKey)
         {
             var privateKey = genericCache.Get<string>(publicKey);
             if (privateKey == null) { return null; }
@@ -47,42 +108,9 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             {
                 string businessUserResponsePasswordDecripted = genericRSA.Decript(rsaConfiguration.Value.PrivateKey, bussinesUser.BusinessUserPassword);
                 if (businessUserPasswordDecripted == businessUserResponsePasswordDecripted) return bussinesUser;
-
             }
             return null;
         }
-        public ValidTokenResponse ValidToken(string token, string pageRoot, string httpVerb)
-        {
-            if (token.Contains("Bearer")) token = token.Replace("Bearer ", "");
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(jwtConfiguration.Value.Key);
-            try
-            {
-                IPrincipal principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
-                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-                var accessClaim = jwtSecurityToken.Claims.SingleOrDefault(x => x.Type.Equals(pageRoot));
-                if (accessClaim == null) return new ValidTokenResponse(true, false, $"No tiene acceso al recurso {pageRoot} ");
-                else
-                {
-                    var access = JsonSerializer.Deserialize<Access>(accessClaim.Value);
-                    if (httpVerb.Equals("POST") && !access.CanCreate) { return new ValidTokenResponse(true, false, $"No tiene acceso a crear recursos {pageRoot} "); }
-                    if ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && !access.CanUpdate) { return new ValidTokenResponse(true, false, $"No tiene acceso a modificar el recurso {pageRoot} "); }
-                    if (httpVerb.Equals("DELETE") && !access.CanDelete) { return new ValidTokenResponse(true, false, $"No tiene acceso a eliminar objetos en el recurso {pageRoot} "); }
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ValidTokenResponse(false, false, ex.Message );
-            }
-            return new ValidTokenResponse(true, true, "");
-        }
+        #endregion        
     }
 }
