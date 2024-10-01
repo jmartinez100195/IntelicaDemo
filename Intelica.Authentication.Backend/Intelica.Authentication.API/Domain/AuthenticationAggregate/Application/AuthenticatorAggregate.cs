@@ -19,12 +19,12 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
     {
         public AuthenticationResponse ValidateAuthentication(AuthenticationQuery authenticationQuery, string ip)
         {
-            if (!client.IsValid(authenticationQuery.ClientID, authenticationQuery.CallBack)) return new AuthenticationResponse("", "", false);
+            if (!client.IsValid(authenticationQuery.ClientID, authenticationQuery.CallBack)) return new AuthenticationResponse("", "", false, false);
             var businessUser = ValidateCredentials(authenticationQuery.BusinessUserEmail, authenticationQuery.BusinessUserPassword, authenticationQuery.PublicKey);
-            if (businessUser == null) return new AuthenticationResponse("", "", false);
+            if (businessUser == null) return new AuthenticationResponse("", "", false, false);
             var token = GenerateToken(businessUser, ip, authenticationQuery.ClientID);
             var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
-            return new AuthenticationResponse(token, refreshToken, true); ;
+            return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogeo); ;
         }
         public RefreshTokenResponse ValidateRefreshToken(Guid refreshToken, string businessUserEmail, string clientID, string ip)
         {
