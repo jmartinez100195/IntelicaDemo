@@ -18,9 +18,9 @@ namespace Intelica.Authentication.API.Controllers
         [HttpPost]
         public IActionResult ValidateAuthentication(AuthenticationQuery authenticationQuery)
         {
-            if (!client.IsValid(authenticationQuery.ClientID, authenticationQuery.CallBack)) return Ok(new AuthenticationResponse("", "", false, "No se pudo validar el origen de la metadata"));
+            if (!client.IsValid(authenticationQuery.ClientID, authenticationQuery.CallBack)) return Ok(new AuthenticationResponse("", "", false, "No se pudo validar el origen de la metadata", false));
             var businessUser = authenticator.ValidateCredentials(authenticationQuery.BusinessUserEmail, authenticationQuery.BusinessUserPassword, authenticationQuery.PublicKey);
-            if (businessUser == null) return Ok(new AuthenticationResponse("", "", false, "Usuario o contrasena invalida"));
+            if (businessUser == null) return Ok(new AuthenticationResponse("", "", false, "Usuario o contrasena invalida", false));
             var response = authenticator.GenerateToken(businessUser, authenticationQuery.ClientID);
             var cookieOptions = new CookieOptions
             {

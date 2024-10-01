@@ -35,7 +35,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                 signingCredentials: credentials
             );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return new AuthenticationResponse(jwt, "", true, "");
+            return new AuthenticationResponse(jwt, "", true, "", businessUserResponse.BusinessUserFirstLogeo);
         }
         public BussinesUserResponse? ValidateCredentials(string businessUserEmail, string businessUserPassword, string publicKey)
         {
@@ -80,7 +80,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             }
             catch (Exception ex)
             {
-                return new ValidTokenResponse(false, false, ex.Message );
+                return new ValidTokenResponse(false, false, ex.Message);
             }
             return new ValidTokenResponse(true, true, "");
         }

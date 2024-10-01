@@ -10,7 +10,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastruct
             //return new BussinesUserResponse(Guid.NewGuid(), "Espejo Huerta, Carlos Rufino", "carlos.espejo@intelica.com", [new(Guid.NewGuid(), "Bank", true, true, true), new(Guid.NewGuid(), "Page", true, true, true)]);
             var query = from businessUser in context.BusinessUsers.Where(x => x.BusinessUserEmail.Equals(businessUserEmail))
                         select new BussinesUserResponse(businessUser.BusinessUserID, $"{businessUser.BusinessUserLastName}, {businessUser.BusinessUserName}",
-                        businessUser.BusinessUserEmail, businessUser.BusinessUserPassword,
+                        businessUser.BusinessUserEmail, businessUser.BusinessUserPassword, businessUser.BusinessUserFirstLogeo,
                         (
                             from businessUserPage in context.BusinessUserPages.Where(x => x.BusinessUserID.Equals(businessUser.BusinessUserID))
                             join page in context.Pages on businessUserPage.PageID equals page.PageID
