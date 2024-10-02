@@ -1,11 +1,20 @@
 ﻿namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Domain
 {
-    public class AccessInformation(Guid businessUserID, string ip,  DateTime expirationDate)
+    public class AccessInformation
     {
-        public Guid AccessInformationID { get; private set; } = Guid.NewGuid();
-        public Guid BusinessUserID { get; private set; } = businessUserID;
-        public string IP { get; private set; } = ip;
-        public DateTime GenerationDate { get; private set; } = DateTime.Now;
-        public DateTime ExpirationDate { get; private set; } = expirationDate;
+        public Guid AccessInformationID { get; private set; }
+        public Guid BusinessUserID { get; private set; } 
+        public string IP { get; private set; }
+        public DateTime GenerationDate { get; private set; }
+        public DateTime ExpirationDate { get; private set; } 
+        public AccessInformation() { }
+        public AccessInformation(Guid businessUserID, string ip, DateTime expirationDate)
+        {
+            AccessInformationID = Guid.NewGuid();
+            BusinessUserID = businessUserID;
+            IP = ip;
+            GenerationDate = DateTime.Now;
+            ExpirationDate = expirationDate;
+        }
     }
 }
