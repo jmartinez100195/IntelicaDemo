@@ -24,7 +24,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             if (businessUser == null) return new AuthenticationResponse("", "", false, false);
             var token = GenerateToken(businessUser, ip, authenticationQuery.ClientID);
             var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
-            return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogeo); ;
+            return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogin); ;
         }
         public RefreshTokenResponse ValidateRefreshToken(Guid refreshToken, string businessUserEmail, string clientID, string ip)
         {
