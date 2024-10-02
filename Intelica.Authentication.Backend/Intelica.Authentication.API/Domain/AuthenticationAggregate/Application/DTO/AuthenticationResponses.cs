@@ -5,5 +5,5 @@
     List<BusinessUserPageResponse> BusinessUserPages);
     public record BusinessUserPageResponse(Guid PageID, string PageRoot, bool CanUpdate, bool CanCreate, bool CanDelete);
     public record ValidTokenResponse(bool Active, bool Authorize);
-    public record RefreshTokenResponse(bool ValidRefreshToken, bool ExpiredRefreshToken, string Token);
+    public record RefreshTokenResponse(bool ValidRefreshToken,  string Token);
 }
