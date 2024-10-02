@@ -1,6 +1,7 @@
 ﻿using Intelica.Authentication.API.Common.Encriptation;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
+using Intelica.Security.API.Extensions;
 using Microsoft.AspNetCore.Mvc;
 namespace Intelica.Authentication.API.Controllers
 {
@@ -31,11 +32,12 @@ namespace Intelica.Authentication.API.Controllers
             return Ok(response);
         }
         [HttpPost]
-        [Route("RefresToken")]
-        public IActionResult RefresToken(RefreshTokenQuery refreshTokenQuery)
+        [Route("RefreshToken")]
+        public IActionResult RefreshToken(RefreshTokenQuery refreshTokenQuery)
         {
+            var userData = new UserDataRetriever(Request.Headers.Authorization.ToString());
             var ip = Request.Host.Value;
-            var response = authenticator.ValidateRefreshToken(refreshTokenQuery.RefreshToken, refreshTokenQuery.BussinesUserEmail, refreshTokenQuery.ClientID, ip);
+            var response = authenticator.ValidateRefreshToken(refreshTokenQuery.RefreshToken, userData.BussinesUserEmail, refreshTokenQuery.ClientID, ip);
             return Ok(response);
         }
         [HttpGet]

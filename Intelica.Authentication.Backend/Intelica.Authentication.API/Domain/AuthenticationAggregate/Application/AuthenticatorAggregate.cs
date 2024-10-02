@@ -29,12 +29,12 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
         public RefreshTokenResponse ValidateRefreshToken(Guid refreshToken, string businessUserEmail, string clientID, string ip)
         {
             var accesInformation = repository.FindAccessInformation(refreshToken);
-            if (accesInformation == null) return new RefreshTokenResponse(false, false, "");
-            if (!accesInformation.IP.Equals(ip)) return new RefreshTokenResponse(false, false, "");
-            if (DateTime.Now > accesInformation.ExpirationDate) return new RefreshTokenResponse(true, true, "");
+            if (accesInformation == null) return new RefreshTokenResponse(false, "");
+            if (!accesInformation.IP.Equals(ip)) return new RefreshTokenResponse(false, "");
+            if (DateTime.Now > accesInformation.ExpirationDate) return new RefreshTokenResponse(false, "");
             var businessUser = repository.FindByEmail(businessUserEmail);
             var token = GenerateToken(businessUser, ip, clientID);
-            return new RefreshTokenResponse(true, true, token);
+            return new RefreshTokenResponse(true, token);
         }
         public ValidTokenResponse ValidateToken(string token, string pageRoot, string httpVerb)
         {
@@ -81,11 +81,12 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             }
             claims.Add(new("preferred_username", businessUserResponse.BusinessUserName));
             claims.Add(new("sub", businessUserResponse.BusinessUserID.ToString()));
+            claims.Add(new("email", businessUserResponse.BusinessUserEmail));
             var token = new JwtSecurityToken(
                 issuer: "auth.intelica.com",
                 audience: clientID,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(10),
+                expires: DateTime.Now.AddMinutes(1),
                 signingCredentials: credentials
             );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
