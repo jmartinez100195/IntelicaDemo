@@ -24,7 +24,7 @@ namespace Intelica.Security.API.Extensions
         public static IServiceCollection AddConfigurations(this IServiceCollection services)
         {
             services.AddSingleton<ILog, StandartOuputLog>();
-            services.AddSingleton<IGenericCache, RedisCache>();
+            services.AddSingleton<IGenericCache, InMemoryCache>();
             services.AddTransient<IWebSocket, WebSocketSignalR>();
             services.AddTransient<IMessageBroker, MessageBrokerAWSSQS>();
             services.AddTransient<IGenericApiProxy, GenericApiProxy>();

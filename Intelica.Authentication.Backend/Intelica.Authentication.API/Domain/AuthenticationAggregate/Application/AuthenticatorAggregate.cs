@@ -45,7 +45,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                 }, out SecurityToken validatedToken);
                 Expired = false;
                 var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-                var accessClaim = jwtSecurityToken.Claims.SingleOrDefault(x => x.Type.Equals(pageRoot));
+                var accessClaim = jwtSecurityToken.Claims.SingleOrDefault(x => x.Type.ToUpper().Equals(pageRoot.ToUpper()));
                 if (accessClaim != null)
                 {
                     var access = JsonSerializer.Deserialize<Access>(accessClaim.Value) ?? new(false, false, false);
@@ -56,7 +56,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                         Unauthorized = false;
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 //Refresh token
                 var accesInformation = repository.FindAccessInformation(refreshToken);
@@ -128,18 +128,14 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             return null;
         }
         #endregion
-
         public AuthenticationMailResponse ValidateAuthenticationMail(AuthenticationMailQuery authenticationMailQuery)
         {
             var businessUser = repository.FindByEmail(authenticationMailQuery.BusinessUserEmail);
             if (businessUser == null) return new AuthenticationMailResponse(false, "");
-
             Random rnd = new Random();
             var codeRandom = "U" + rnd.Next(1000, 9999).ToString();
-
             return new AuthenticationMailResponse(true, codeRandom); ;
         }
-
         public AuthenticationSendMailResponse ValidateAuthenticationSendMail(AuthenticationSendMailQuery authenticationSendMailQuery, string ip)
         {
             if (!client.IsValid(authenticationSendMailQuery.ClientID, authenticationSendMailQuery.CallBack)) return new AuthenticationSendMailResponse("", "", false);
