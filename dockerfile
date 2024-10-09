@@ -6,6 +6,7 @@ RUN dotnet publish ./Intelica.Authentication.API/Intelica.Authentication.API.csp
 FROM mcr.microsoft.com/dotnet/aspnet:8.0.4-alpine3.19-amd64
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV TZ=America/Lima
+ENV ASPNETCORE_ENVIRONMENT=Docker
 RUN apk update && apk add libgdiplus icu-libs libc6-compat tzdata
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://*:8080
