@@ -25,22 +25,13 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             var token = GenerateToken(businessUser, ip, authenticationQuery.ClientID);
             var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
             return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogin); ;
-        }
-        public RefreshTokenResponse ValidateRefreshToken(Guid refreshToken, string businessUserEmail, string clientID, string ip)
-        {
-            var accesInformation = repository.FindAccessInformation(refreshToken);
-            if (accesInformation == null) return new RefreshTokenResponse(false, "");
-            if (!accesInformation.IP.Equals(ip)) return new RefreshTokenResponse(false, "");
-            if (DateTime.Now > accesInformation.ExpirationDate) return new RefreshTokenResponse(false, "");
-            var businessUser = repository.FindByEmail(businessUserEmail);
-            var token = GenerateToken(businessUser, ip, clientID);
-            return new RefreshTokenResponse(true, token);
-        }
-        public ValidTokenResponse ValidateToken(string token, string pageRoot, string httpVerb)
+        }       
+        public ValidateTokenResponse ValidateToken(string token, Guid refreshToken, string businessUserEmail, string clientID, string ip, string pageRoot, string httpVerb)
         {
             if (token.Contains("Bearer")) token = token.Replace("Bearer ", "");
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(jwtConfiguration.Value.Key);
+            bool Expired = true; bool Unauthorized = true; string NewToken = "";
             try
             {
                 IPrincipal principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -51,22 +42,45 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                     ValidateAudience = false,
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
+                Expired = false;
                 var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
                 var accessClaim = jwtSecurityToken.Claims.SingleOrDefault(x => x.Type.Equals(pageRoot));
-                if (accessClaim == null) return new ValidTokenResponse(true, false);
-                else
+                if (accessClaim != null)
                 {
-                    var access = JsonSerializer.Deserialize<Access>(accessClaim.Value);
-                    if (httpVerb.Equals("POST") && !access.CanCreate) { return new ValidTokenResponse(true, false); }
-                    if ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && !access.CanUpdate) { return new ValidTokenResponse(true, false); }
-                    if (httpVerb.Equals("DELETE") && !access.CanDelete) { return new ValidTokenResponse(true, false); }
+                    var access = JsonSerializer.Deserialize<Access>(accessClaim.Value) ?? new(false, false, false);
+                    if (httpVerb.Equals("GET") ||
+                    (httpVerb.Equals("POST") && access.CanCreate) ||
+                    (httpVerb.Equals("DELETE") && access.CanDelete) ||
+                    ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && access.CanUpdate))
+                        Unauthorized = false;
                 }
             }
             catch
             {
-                return new ValidTokenResponse(false, false);
+                //Refresh token
+                var accesInformation = repository.FindAccessInformation(refreshToken);
+                if (accesInformation != null)
+                    //if (DateTime.Now <= accesInformation.ExpirationDate && accesInformation.IP.Equals(ip))
+                    if (DateTime.Now <= accesInformation.ExpirationDate)
+                    {
+                        var businessUser = repository.FindByEmail(businessUserEmail);
+                        if (businessUser != null)
+                        {
+                            Expired = false;
+                            NewToken = GenerateToken(businessUser, ip, clientID);
+                            var businessUserPage = businessUser.BusinessUserPages.SingleOrDefault(x => x.PageRoot.Equals(pageRoot));
+                            if (businessUserPage != null)
+                            {
+                                if (httpVerb.Equals("GET") ||
+                                (httpVerb.Equals("POST") && businessUserPage.CanCreate) ||
+                                (httpVerb.Equals("DELETE") && businessUserPage.CanDelete) ||
+                                ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && businessUserPage.CanUpdate))
+                                    Unauthorized = false;
+                            }
+                        }
+                    }
             }
-            return new ValidTokenResponse(true, true);
+            return new ValidateTokenResponse(Expired, Unauthorized, NewToken);
         }
         #region Private
         private string GenerateToken(BussinesUserResponse businessUserResponse, string ip, string clientID)

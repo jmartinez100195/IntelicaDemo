@@ -4,7 +4,6 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
     public interface IAuthenticatorAggregate
     {
         AuthenticationResponse ValidateAuthentication(AuthenticationQuery authenticationQuery, string ip);
-        RefreshTokenResponse ValidateRefreshToken(Guid refreshToken, string businessUserEmail, string clientID, string ip);
-        ValidTokenResponse ValidateToken(string token, string pageRoot, string httpVerb);
+        ValidateTokenResponse ValidateToken(string token, Guid refreshToken, string businessUserEmail, string clientID, string ip, string pageRoot, string httpVerb);
     }
 }

@@ -6,10 +6,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastruct
 {
     public class AuthenticationSQLServerRepository(Context context) : IAuthenticationRepository
     {
-        public void CreateAccessInformation(AccessInformation accessInformation)
-        {
-            context.AccessInformation.Add(accessInformation);
-        }
+        public void CreateAccessInformation(AccessInformation accessInformation) => context.AccessInformation.Add(accessInformation);
         public AccessInformation? FindAccessInformation(Guid accessInformationID)
         {
             var row = context.AccessInformation.SingleOrDefault(x => x.AccessInformationID.Equals(accessInformationID));
@@ -30,10 +27,6 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastruct
             if (list.Count == 0) return null;
             return query.First();
         }
-
-        public void SaveChanges()
-        {
-            context.SaveChanges();
-        }
+        public void SaveChanges() => context.SaveChanges();
     }
 }
