@@ -26,17 +26,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
             return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogin); ;
         }
-        //public RefreshTokenResponse ValidateRefreshToken(Guid refreshToken, string businessUserEmail, string clientID, string ip)
-        //{
-        //    var accesInformation = repository.FindAccessInformation(refreshToken);
-        //    if (accesInformation == null) return new RefreshTokenResponse(false, "");
-        //    if (!accesInformation.IP.Equals(ip)) return new RefreshTokenResponse(false, "");
-        //    if (DateTime.Now > accesInformation.ExpirationDate) return new RefreshTokenResponse(false, "");
-        //    var businessUser = repository.FindByEmail(businessUserEmail);
-        //    var token = GenerateToken(businessUser, ip, clientID);
-        //    return new RefreshTokenResponse(true, token);
-        //}
-        public ValidTokenResponse ValidateToken(string token, Guid refreshToken, string businessUserEmail, string clientID, string ip, string pageRoot, string httpVerb)
+        public ValidateTokenResponse ValidateToken(string token, Guid refreshToken, string businessUserEmail, string clientID, string ip, string pageRoot, string httpVerb)
         {
             if (token.Contains("Bearer")) token = token.Replace("Bearer ", "");
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -90,7 +80,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                         }
                     }
             }
-            return new ValidTokenResponse(Expired, Unauthorized, NewToken);
+            return new ValidateTokenResponse(Expired, Unauthorized, NewToken);
         }
         #region Private
         private string GenerateToken(BussinesUserResponse businessUserResponse, string ip, string clientID)

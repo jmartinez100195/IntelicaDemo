@@ -31,15 +31,6 @@ namespace Intelica.Authentication.API.Controllers
             Response.Cookies.Append("refresToken", response.RefreshToken, cookieOptions);
             return Ok(response);
         }
-        //[HttpPost]
-        //[Route("RefreshToken")]
-        //public IActionResult RefreshToken(RefreshTokenQuery refreshTokenQuery)
-        //{
-        //    var userData = new UserDataRetriever(Request.Headers.Authorization.ToString());
-        //    var ip = Request.Host.Value;
-        //    var response = authenticator.ValidateRefreshToken(refreshTokenQuery.RefreshToken, userData.BussinesUserEmail, refreshTokenQuery.ClientID, ip);
-        //    return Ok(response);
-        //}
         [HttpPost]
         [Route("ValidateToken")]
         public IActionResult ValidateToken(ValidateTokenQuery validateTokenQuery)
