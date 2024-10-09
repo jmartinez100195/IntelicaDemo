@@ -31,6 +31,12 @@ builder.Services.AddDbContext<Context>(options =>
                 errorNumbersToAdd: null);
         });
 });
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+});
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

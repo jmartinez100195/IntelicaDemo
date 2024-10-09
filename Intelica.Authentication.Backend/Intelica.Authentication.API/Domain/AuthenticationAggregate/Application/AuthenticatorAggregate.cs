@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
+
 namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
 {
     public class AuthenticatorAggregate(IGenericCache genericCache, IGenericRSA genericRSA, IClientAggregate client, IAuthenticationRepository repository,
@@ -126,6 +127,28 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             }
             return null;
         }
-        #endregion        
+        #endregion
+
+        public AuthenticationMailResponse ValidateAuthenticationMail(AuthenticationMailQuery authenticationMailQuery)
+        {
+            var businessUser = repository.FindByEmail(authenticationMailQuery.BusinessUserEmail);
+            if (businessUser == null) return new AuthenticationMailResponse(false, "");
+
+            Random rnd = new Random();
+            var codeRandom = "U" + rnd.Next(1000, 9999).ToString();
+
+            return new AuthenticationMailResponse(true, codeRandom); ;
+        }
+
+        public AuthenticationSendMailResponse ValidateAuthenticationSendMail(AuthenticationSendMailQuery authenticationSendMailQuery, string ip)
+        {
+            if (!client.IsValid(authenticationSendMailQuery.ClientID, authenticationSendMailQuery.CallBack)) return new AuthenticationSendMailResponse("", "", false);
+            var businessUser = repository.FindByEmail(authenticationSendMailQuery.BusinessUserEmail);
+            if (businessUser == null) return new AuthenticationSendMailResponse("", "", false);
+            var token = GenerateToken(businessUser, ip, authenticationSendMailQuery.ClientID);
+            var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
+
+            return new AuthenticationSendMailResponse(token, refreshToken, true); ;
+        }
     }
 }
