@@ -1,4 +1,5 @@
-﻿using Intelica.Authentication.API.Common.DTO;
+﻿using Azure;
+using Intelica.Authentication.API.Common.DTO;
 using Intelica.Authentication.API.Common.Encriptation;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
@@ -69,7 +70,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                         {
                             Expired = false;
                             NewToken = GenerateToken(businessUser, ip, clientID);
-                            var businessUserPage = businessUser.BusinessUserPages.SingleOrDefault(x => x.PageRoot.Equals(pageRoot));
+                            var businessUserPage = businessUser.BusinessUserPages.SingleOrDefault(x => x.PageRoot.ToUpper().Equals(pageRoot.ToUpper()));
                             if (businessUserPage != null)
                             {
                                 if (httpVerb.Equals("GET") ||
@@ -80,7 +81,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                             }
                         }
                     }
-            }
+            }            
             return new ValidateTokenResponse(Expired, Unauthorized, NewToken);
         }
         #region Private
