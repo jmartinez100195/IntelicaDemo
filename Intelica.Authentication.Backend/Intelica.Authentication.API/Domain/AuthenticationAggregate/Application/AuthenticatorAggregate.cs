@@ -1,5 +1,4 @@
-﻿using Azure;
-using Intelica.Authentication.API.Common.DTO;
+﻿using Intelica.Authentication.API.Common.DTO;
 using Intelica.Authentication.API.Common.Encriptation;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
@@ -13,7 +12,6 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
-
 namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
 {
     public class AuthenticatorAggregate(IGenericCache genericCache, IGenericRSA genericRSA, IClientAggregate client, IAuthenticationRepository repository,
@@ -26,7 +24,16 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             if (businessUser == null) return new AuthenticationResponse("", "", false, false);
             var token = GenerateToken(businessUser, ip, authenticationQuery.ClientID);
             var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
-            return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogin); ;
+            return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogin);
+        }
+        public AuthenticationLocalResponse ValidateAuthenticationLocal(AuthenticationLocalQuery authenticationLocalQuery, string ip)
+        {
+            if (!client.IsValid(authenticationLocalQuery.ClientID, null)) return new AuthenticationLocalResponse("", false);
+            if (!rsaConfiguration.Value.PrivateKey.Equals(authenticationLocalQuery.PrivateKey)) return new AuthenticationLocalResponse("", false);
+            var businessUser = repository.Find(authenticationLocalQuery.BusinessUserID);
+            if (businessUser == null) return new AuthenticationLocalResponse("", false);
+            var token = GenerateToken(businessUser, ip, authenticationLocalQuery.ClientID);
+            return new AuthenticationLocalResponse(token, true);
         }
         public ValidateTokenResponse ValidateToken(string token, Guid refreshToken, string businessUserEmail, string clientID, string ip, string pageRoot, string httpVerb)
         {
@@ -57,7 +64,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                         Unauthorized = false;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 //Refresh token
                 var accesInformation = repository.FindAccessInformation(refreshToken);
@@ -70,7 +77,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                         {
                             Expired = false;
                             NewToken = GenerateToken(businessUser, ip, clientID);
-                            var businessUserPage = businessUser.BusinessUserPages.SingleOrDefault(x => x.PageRoot.ToUpper().Equals(pageRoot.ToUpper()));
+                            var businessUserPage = (businessUser.BusinessUserPages ?? []).SingleOrDefault(x => x.PageRoot.ToUpper().Equals(pageRoot.ToUpper()));
                             if (businessUserPage != null)
                             {
                                 if (httpVerb.Equals("GET") ||
@@ -81,7 +88,32 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                             }
                         }
                     }
-            }            
+            }
+            return new ValidateTokenResponse(Expired, Unauthorized, NewToken);
+        }
+        public ValidateTokenResponse ValidateTokenLocal(string token, Guid businessUserID, string clientID)
+        {
+            if (token.Contains("Bearer")) token = token.Replace("Bearer ", "");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(jwtConfiguration.Value.Key);
+            bool Expired = true; bool Unauthorized = true; string NewToken = "";
+            try
+            {
+                IPrincipal principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+                Expired = false;
+                Unauthorized = false;
+            }
+            catch
+            {
+                return new ValidateTokenResponse(Expired, Unauthorized, NewToken);
+            }
             return new ValidateTokenResponse(Expired, Unauthorized, NewToken);
         }
         #region Private
@@ -90,7 +122,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.Value.Key));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             List<Claim> claims = [];
-            foreach (var businessUserPage in businessUserResponse.BusinessUserPages)
+            foreach (var businessUserPage in businessUserResponse.BusinessUserPages ?? [])
             {
                 var accessLevel = JsonSerializer.Serialize(new Access(businessUserPage.CanCreate, businessUserPage.CanUpdate, businessUserPage.CanDelete));
                 claims.Add(new(businessUserPage.PageRoot, accessLevel));
@@ -102,7 +134,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                 issuer: "auth.intelica.com",
                 audience: clientID,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(1),
+                expires: DateTime.Now.AddMinutes(businessUserResponse.BusinessUserPages == null ? 10 : 1),
                 signingCredentials: credentials
             );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -146,6 +178,6 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
 
             return new AuthenticationSendMailResponse(token, refreshToken, true); ;
-        }
+        }        
     }
 }

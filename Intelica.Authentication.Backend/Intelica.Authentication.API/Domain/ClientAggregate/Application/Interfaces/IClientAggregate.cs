@@ -2,6 +2,6 @@
 {
     public interface IClientAggregate
     {
-        bool IsValid(string clientID, string callBack);
+        bool IsValid(string clientID, string? callBack);
     }
 }

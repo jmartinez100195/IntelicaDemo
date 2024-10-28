@@ -6,11 +6,22 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastruct
 {
     public class AuthenticationSQLServerRepository(Context context) : IAuthenticationRepository
     {
-        public void CreateAccessInformation(AccessInformation accessInformation) => context.AccessInformation.Add(accessInformation);
+        public void CreateAccessInformation(AccessInformation accessInformation) => context.AccessInformation.Add(accessInformation); 
         public AccessInformation? FindAccessInformation(Guid accessInformationID)
         {
             var row = context.AccessInformation.SingleOrDefault(x => x.AccessInformationID.Equals(accessInformationID));
             return row;
+        }
+        public BussinesUserResponse? Find(Guid businessUserID)
+        {
+            var query = from businessUser in context.BusinessUsers.Where(x => x.BusinessUserID.Equals(businessUserID))
+                        select new BussinesUserResponse(
+                            businessUser.BusinessUserID, $"{businessUser.BusinessUserLastName}, {businessUser.BusinessUserName}",
+                            businessUser.BusinessUserEmail, businessUser.BusinessUserPassword, businessUser.BusinessUserFirstLogin,null
+                        );
+            var list = query.ToList();
+            if (list.Count == 0) return null;
+            return query.First();
         }
         public BussinesUserResponse? FindByEmail(string businessUserEmail)
         {

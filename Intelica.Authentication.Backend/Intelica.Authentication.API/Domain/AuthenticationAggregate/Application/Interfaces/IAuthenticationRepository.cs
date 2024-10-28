@@ -5,8 +5,9 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
     public interface IAuthenticationRepository
     {
         BussinesUserResponse? FindByEmail(string businessUserEmail);
+        BussinesUserResponse? Find(Guid businessUserID);
         void CreateAccessInformation(AccessInformation accessInformation);
-        AccessInformation? FindAccessInformation(Guid accessInformationID);
+        AccessInformation? FindAccessInformation(Guid businessUserID);
         void SaveChanges();
     }
 }
