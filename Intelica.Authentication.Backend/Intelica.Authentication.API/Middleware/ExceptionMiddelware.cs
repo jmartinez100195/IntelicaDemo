@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel;
 using System.Text.Json;
-namespace Intelica.Security.API.Middleware
+namespace Intelica.Authentication.API.Middleware
 {
 	public class ExceptionMiddleware(RequestDelegate next, ILog log)
 	{

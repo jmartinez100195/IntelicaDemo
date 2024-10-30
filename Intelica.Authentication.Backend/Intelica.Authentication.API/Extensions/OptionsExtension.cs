@@ -1,7 +1,7 @@
 ﻿using Intelica.Authentication.API.Common.DTO;
 using Intelica.Infrastructure.Library.Email.DTO;
 
-namespace Intelica.Security.API.Extensions
+namespace Intelica.Authentication.API.Extensions
 {
     public static class OptionsExtension
     {

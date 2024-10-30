@@ -1,6 +1,6 @@
 ﻿using Intelica.Authentication.API.Domain.ClientAggregate.Application.Interfaces;
 using Intelica.Authentication.API.Domain.ClientAggregate.Domain;
-using Intelica.Security.Domain.Common.EFCore;
+using Intelica.Authentication.Domain.Common.EFCore;
 namespace Intelica.Authentication.API.Domain.ClientAggregate.Infrastructure
 {
     public class ClientSQLRepository(Context context) : IClientRepository

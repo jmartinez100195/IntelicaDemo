@@ -1,5 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-namespace Intelica.Security.API.Extensions
+namespace Intelica.Authentication.API.Extensions
 {
     public class UserDataRetriever
     {

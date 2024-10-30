@@ -4,7 +4,7 @@ using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Int
 using Intelica.Infrastructure.Library.Cache.Interface;
 using Intelica.Infrastructure.Library.Email.DTO;
 using Intelica.Infrastructure.Library.Email.Interface;
-using Intelica.Security.API.Extensions;
+using Intelica.Authentication.API.Extensions;
 using Microsoft.AspNetCore.Mvc;
 namespace Intelica.Authentication.API.Controllers
 {

@@ -17,7 +17,7 @@ using Intelica.Infrastructure.Library.MessageBroker;
 using Intelica.Infrastructure.Library.MessageBroker.Interface;
 using Intelica.Infrastructure.Library.WebSocket;
 using Intelica.Infrastructure.Library.WebSocket.Interface;
-namespace Intelica.Security.API.Extensions
+namespace Intelica.Authentication.API.Extensions
 {
     public static class DIExtension
     {
