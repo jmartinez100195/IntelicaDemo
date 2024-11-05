@@ -7,8 +7,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "";
-if (environment == "Docker") builder.Configuration.AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true);
-else builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+if (environment == "Docker") builder.Configuration.AddJsonFile("appsettings/appsettings.docker.json", optional: false, reloadOnChange: true);
+else builder.Configuration.AddJsonFile("appsettings/appsettings.json", optional: false, reloadOnChange: true);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "local", policy =>

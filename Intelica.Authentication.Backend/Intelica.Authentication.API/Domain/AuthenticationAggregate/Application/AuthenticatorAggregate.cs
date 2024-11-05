@@ -5,6 +5,7 @@ using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Int
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Domain;
 using Intelica.Authentication.API.Domain.ClientAggregate.Application.Interfaces;
 using Intelica.Infrastructure.Library.Cache.Interface;
+using Intelica.Infrastructure.Library.Storage.Interface;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,7 +15,7 @@ using System.Text;
 using System.Text.Json;
 namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
 {
-    public class AuthenticatorAggregate(IGenericCache genericCache, IGenericRSA genericRSA, IClientAggregate client, IAuthenticationRepository repository,
+    public class AuthenticatorAggregate(IGenericCache genericCache, IGenericRSA genericRSA, IClientAggregate client, IAuthenticationRepository repository, IStorage storage,
     IOptionsSnapshot<JWTConfiguration> jwtConfiguration, IOptionsSnapshot<RSAConfiguration> rsaConfiguration) : IAuthenticatorAggregate
     {
         public AuthenticationResponse ValidateAuthentication(AuthenticationQuery authenticationQuery, string ip)
@@ -25,7 +26,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             var token = GenerateToken(businessUser, ip, authenticationQuery.ClientID, "0");
             var refreshToken = GenerateRefreshToken(businessUser.BusinessUserID, ip);
             AuthenticationData autheticationData = new(businessUser.BusinessUserName, businessUser.BusinessUserEmail, businessUser.BusinessUserID,
-            businessUser.BusinessUserProfile, "");
+            businessUser.BusinessUserProfile);
             return new AuthenticationResponse(token, refreshToken, true, businessUser.BusinessUserFirstLogin, autheticationData);
         }
         public AuthenticationLocalResponse ValidateAuthenticationInternal(AuthenticationInternalQuery authenticationLocalQuery, string ip)

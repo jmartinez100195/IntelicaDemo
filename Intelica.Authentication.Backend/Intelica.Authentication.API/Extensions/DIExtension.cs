@@ -15,6 +15,8 @@ using Intelica.Infrastructure.Library.Log;
 using Intelica.Infrastructure.Library.Log.Interrfaces;
 using Intelica.Infrastructure.Library.MessageBroker;
 using Intelica.Infrastructure.Library.MessageBroker.Interface;
+using Intelica.Infrastructure.Library.Storage;
+using Intelica.Infrastructure.Library.Storage.Interface;
 using Intelica.Infrastructure.Library.WebSocket;
 using Intelica.Infrastructure.Library.WebSocket.Interface;
 namespace Intelica.Authentication.API.Extensions
@@ -34,6 +36,7 @@ namespace Intelica.Authentication.API.Extensions
             services.AddTransient<IClientAggregate, ClientAggregate>();
             services.AddTransient<IClientRepository, ClientSQLRepository>();
             services.AddTransient<IEmailNotification, EmailNotificationSMTP>();
+            services.AddScoped<IStorage, StorageAWSS3>();
             return services;
         }
     }

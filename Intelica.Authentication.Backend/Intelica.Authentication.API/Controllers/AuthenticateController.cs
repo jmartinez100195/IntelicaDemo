@@ -6,6 +6,7 @@ using Intelica.Infrastructure.Library.Email.DTO;
 using Intelica.Infrastructure.Library.Email.Interface;
 using Intelica.Authentication.API.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 namespace Intelica.Authentication.API.Controllers
 {
     [ApiController]
@@ -32,6 +33,7 @@ namespace Intelica.Authentication.API.Controllers
             };
             Response.Cookies.Append("token", response.JwtToken, cookieOptions);
             Response.Cookies.Append("refresToken", response.RefreshToken, cookieOptions);
+            Response.Cookies.Append("data", JsonSerializer.Serialize(response.AuthenticationData), cookieOptions);
             return Ok(response);
         }
         [HttpPost]
