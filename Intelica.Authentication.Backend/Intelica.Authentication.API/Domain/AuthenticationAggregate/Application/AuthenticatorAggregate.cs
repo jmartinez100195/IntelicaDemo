@@ -60,11 +60,11 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
                 Expired = false;
                 if (accessClaim != null)
                 {
-                    var access = JsonSerializer.Deserialize<Access>(accessClaim.Value) ?? new(false, false, false);
+                    var access = JsonSerializer.Deserialize<Access>(accessClaim.Value) ?? new(false, false, false, []);
                     if (httpVerb.Equals("GET") ||
-                    (httpVerb.Equals("POST") && access.CanCreate) ||
-                    (httpVerb.Equals("DELETE") && access.CanDelete) ||
-                    ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && access.CanUpdate))
+                    (httpVerb.Equals("POST") && access.C) ||
+                    (httpVerb.Equals("DELETE") && access.D) ||
+                    ((httpVerb.Equals("PUT") || httpVerb.Equals("PATCH")) && access.U))
                         Unauthorized = false;
                 }
                 if (IsInternal) Unauthorized = false;
@@ -132,7 +132,8 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Application
             List<Claim> claims = [];
             foreach (var businessUserPage in businessUserResponse.BusinessUserPages ?? [])
             {
-                var accessLevel = JsonSerializer.Serialize(new Access(businessUserPage.CanCreate, businessUserPage.CanUpdate, businessUserPage.CanDelete));
+                var accessLevel = JsonSerializer.Serialize(new Access(businessUserPage.CanCreate, businessUserPage.CanUpdate, businessUserPage.CanDelete,
+                businessUserPage.PageControllers));
                 claims.Add(new(businessUserPage.PageRoot, accessLevel));
             }
             claims.Add(new("preferred_username", businessUserResponse.BusinessUserName));

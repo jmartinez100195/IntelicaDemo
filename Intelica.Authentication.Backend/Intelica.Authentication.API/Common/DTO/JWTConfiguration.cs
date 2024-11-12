@@ -4,5 +4,6 @@
     {
         public string Key { get; init; }
     }
-    public record Access(bool CanCreate , bool CanUpdate, bool CanDelete);
+    public record ControllerResponse(string N);
+    public record Access(bool C, bool U, bool D, List<ControllerResponse> Controllers);
 }

@@ -1,4 +1,5 @@
-﻿using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO;
+﻿using Intelica.Authentication.API.Common.DTO;
+using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Domain;
 using Intelica.Authentication.Domain.Common.EFCore;
@@ -34,7 +35,13 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastruct
                             from businessUserPage in context.BusinessUserPages.Where(x => x.BusinessUserID.Equals(businessUser.BusinessUserID) && x.BusinessUserPageActive)
                             join page in context.Pages on new { businessUserPage.PageID, PageActive = true } equals new { page.PageID, page.PageActive }
                             select new BusinessUserPageResponse(businessUserPage.PageID, page.PageRoot, businessUserPage.BusinessUserPageCanUpdate,
-                            businessUserPage.BusinessUserPageCanCreate, businessUserPage.BusinessUserPageCanDelete)
+                            businessUserPage.BusinessUserPageCanCreate, businessUserPage.BusinessUserPageCanDelete,
+                                (
+                                    from pageController in context.PageController.Where(x => x.PageID.Equals(businessUserPage.PageID))
+                                    join controller in context.Controllers on pageController.ControllerID equals controller.ControllerID
+                                    select new ControllerResponse(controller.ControllerName)
+                                ).ToList()
+                            )
                         ).ToList()
                     );
             var list = query.ToList();
