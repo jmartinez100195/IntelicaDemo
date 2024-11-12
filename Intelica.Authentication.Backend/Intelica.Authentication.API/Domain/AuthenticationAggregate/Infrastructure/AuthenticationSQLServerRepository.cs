@@ -38,7 +38,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastruct
                             businessUserPage.BusinessUserPageCanCreate, businessUserPage.BusinessUserPageCanDelete,
                                 (
                                     from pageController in context.PageController.Where(x => x.PageID.Equals(businessUserPage.PageID))
-                                    join controller in context.Controllers on pageController.ControllerID equals controller.ControllerID
+                                    join controller in context.Controllers on pageController.ControllerID equals controller.ControllerID                                    
                                     select new ControllerResponse(controller.ControllerName)
                                 ).ToList()
                             )
