@@ -3,6 +3,7 @@ using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.DTO
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Application.Interfaces;
 using Intelica.Authentication.API.Domain.AuthenticationAggregate.Domain;
 using Intelica.Authentication.Domain.Common.EFCore;
+using static Intelica.Authentication.API.Domain.ControllerAggregate.Application.DTO.ControllerResponses;
 namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastructure
 {
     public class AuthenticationSQLServerRepository(Context context) : IAuthenticationRepository
@@ -39,7 +40,7 @@ namespace Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastruct
                                 (
                                     from pageController in context.PageController.Where(x => x.PageID.Equals(businessUserPage.PageID))
                                     join controller in context.Controllers on pageController.ControllerID equals controller.ControllerID                                    
-                                    select new ControllerResponse(controller.ControllerName)
+                                    select new ControllerSimpleResponse(controller.ControllerName)
                                 ).ToList()
                             )
                         ).ToList()

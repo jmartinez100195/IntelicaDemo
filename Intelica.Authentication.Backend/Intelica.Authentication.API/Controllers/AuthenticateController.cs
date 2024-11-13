@@ -50,7 +50,7 @@ namespace Intelica.Authentication.API.Controllers
         {
             var userData = new UserDataRetriever(validateTokenQuery.Token);
             var response = authenticator.ValidateToken(validateTokenQuery.Token, validateTokenQuery.RefreshToken, userData.BussinesUserEmail,
-            validateTokenQuery.ClientID, validateTokenQuery.Ip, validateTokenQuery.PageRoot, validateTokenQuery.HttpVerb);
+            validateTokenQuery.ClientID, validateTokenQuery.Ip, validateTokenQuery.PageRoot, validateTokenQuery.Controller, validateTokenQuery.HttpVerb);
             return Ok(response);
         }
         [HttpPost]

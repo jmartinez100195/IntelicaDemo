@@ -5,6 +5,12 @@ using Intelica.Authentication.API.Domain.AuthenticationAggregate.Infrastructure;
 using Intelica.Authentication.API.Domain.ClientAggregate.Application;
 using Intelica.Authentication.API.Domain.ClientAggregate.Application.Interfaces;
 using Intelica.Authentication.API.Domain.ClientAggregate.Infrastructure;
+using Intelica.Authentication.API.Domain.ControllerAggregate.Application;
+using Intelica.Authentication.API.Domain.ControllerAggregate.Application.Interfaces;
+using Intelica.Authentication.API.Domain.ControllerAggregate.Infrastructure;
+using Intelica.Authentication.API.Domain.PageAggegate.Application;
+using Intelica.Authentication.API.Domain.PageAggegate.Application.Interfaces;
+using Intelica.Authentication.API.Domain.PageAggegate.Infrastructure;
 using Intelica.Infrastructure.Library.Cache;
 using Intelica.Infrastructure.Library.Cache.Interface;
 using Intelica.Infrastructure.Library.Email;
@@ -37,6 +43,10 @@ namespace Intelica.Authentication.API.Extensions
             services.AddTransient<IClientRepository, ClientSQLRepository>();
             services.AddTransient<IEmailNotification, EmailNotificationSMTP>();
             services.AddScoped<IStorage, StorageAWSS3>();
+            services.AddTransient<IControllerAggregate, ControllerAggregate>();
+            services.AddTransient<IControllerRepository, ControllerSQLServerRepository>();
+            services.AddTransient<IPageAggregate, PageAggregate>();
+            services.AddTransient<IPageRepository, PageSQLServerRepository>();
             return services;
         }
     }
