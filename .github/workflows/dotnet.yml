@@ -20,6 +20,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
+        working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
         run: dotnet restore
 
       - name: Build project
