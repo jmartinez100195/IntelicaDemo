@@ -42,7 +42,7 @@ jobs:
       
       - name: Copy files to IIS folder
         run: |
-          $source = "$(pwd)/Intelica-Authentication-API"
+          $source = "$(pwd)"
           $destination = "E:\NEWWEB"
             
           # Crear la carpeta destino si no existe
