@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
     - uses: actions/checkout@v4
 
@@ -18,25 +18,15 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Navigate to the project directory
-      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
-      run: pwd  # Verifica que estás en la carpeta correcta
-
     - name: Restore dependencies
-      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
-      run: dotnet restore
+      run: dotnet restore Intelica.Authentication.Backend/Intelica.Authentication.API
 
-    - name: Build
-      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
-      run: dotnet build --no-restore
+    - name: Build and publish
+      run: dotnet publish Intelica.Authentication.Backend/Intelica.Authentication.API -c Release -o ./output
 
-    - name: Test
-      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
-      run: dotnet test --no-build --verbosity normal
-    
     - name: Upload build artifact
       uses: actions/upload-artifact@v3
       with:
         name: Intelica-Authentication-API
-        path: Intelica.Authentication.Backend/publish
+        path: ./output
 
