@@ -30,3 +30,26 @@ jobs:
         name: Intelica-Authentication-API
         path: ./output
 
+  deploy:
+    runs-on: self-hosted
+    needs: build 
+    
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: Intelica-Authentication-API
+      
+      - name: Copy files to IIS folder
+        run: |
+          $source = "$(pwd)/Intelica-Authentication-API"
+          $destination = "E:\NEWWEB"
+            
+          # Crear la carpeta destino si no existe
+          if (!(Test-Path -Path $destination)) {
+            New-Item -ItemType Directory -Force -Path $destination
+          }
+    
+          # Copiar los archivos al destino
+          Copy-Item -Path $source\* -Destination $destination -Recurse -Force
+        shell: powershell
