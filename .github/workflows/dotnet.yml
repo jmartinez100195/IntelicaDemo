@@ -24,11 +24,11 @@ jobs:
       run: pwd  # Verifica que estás en la carpeta correcta
 
     - name: Restore dependencies
-      working-directory: Intelica.Authentication.API
+      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
       run: dotnet restore
 
     - name: Build
-      working-directory: Intelica.Authentication.API
+      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
       run: dotnet build --no-restore
 
     - name: Test
