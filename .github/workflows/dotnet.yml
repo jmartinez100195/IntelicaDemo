@@ -5,38 +5,32 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    
+  
 jobs:
-  deploy:
-    runs-on: self-hosted
-
+  build:
+    runs-on: windows-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
-      - name: Restore dependencies
-        working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
-        run: dotnet restore
+    - name: Navigate to the project directory
+      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
+      run: pwd  # Verifica que estás en la carpeta correcta
 
-      - name: Build project
-        run: dotnet publish -c Release -o ./output
+    - name: Restore dependencies
+      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
+      run: dotnet restore
 
-      - name: Copy to IIS folder
-        run: |
-          $source = "$(pwd)/output"
-          $destination = "E:\NEWWEB\INCONTROL QA\InControl"
-          
-          # Crear la carpeta destino si no existe
-          if (!(Test-Path -Path $destination)) {
-            New-Item -ItemType Directory -Force -Path $destination
-          }
+    - name: Build
+      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
+      run: dotnet build --no-restore
 
-          # Copiar los archivos compilados
-          Copy-Item -Path $source\* -Destination $destination -Recurse -Force
-        shell: powershell
+    - name: Test
+      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
+      run: dotnet test --no-build --verbosity normal
 
