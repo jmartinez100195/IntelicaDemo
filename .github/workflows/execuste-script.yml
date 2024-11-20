@@ -13,14 +13,18 @@ jobs:
 
     - name: Execute SQL Script
       run: |
-        $connectionString = "Server=172.0.2.213;Database=${{ secrets.DB_NAME }};User Id=WEBDEVUSR;Password=W3bdevusr;"
-        $scriptPath = "$(pwd)/script.sql" # Ruta al archivo SQL descargado del repositorio
-
+        # Define los parámetros de conexión
+        $server = "172.0.2.213"
+        $database = "ASSOCINCV"
+        $user = "WEBDEVUSR"
+        $password = "W3bdevusr"
+        $scriptPath = "$(pwd)/script.sql"
+    
         # Verifica que el archivo SQL existe
         if (!(Test-Path -Path $scriptPath)) {
           Write-Error "El archivo SQL no existe en la ruta especificada: $scriptPath"
         }
-
-        # Ejecuta el script SQL
-        Invoke-Sqlcmd -ConnectionString $connectionString -InputFile $scriptPath
+    
+        # Ejecuta el script SQL usando sqlcmd
+        sqlcmd -S $server -d $database -U $user -P $password -i $scriptPath
       shell: pwsh
