@@ -33,4 +33,10 @@ jobs:
     - name: Test
       working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
       run: dotnet test --no-build --verbosity normal
+    
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Intelica-Authentication-API
+        path: Intelica.Authentication.Backend/publish
 
