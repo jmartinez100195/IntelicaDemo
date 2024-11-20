@@ -43,7 +43,7 @@ jobs:
       - name: Copy files to IIS folder
         run: |
           $source = "$(pwd)"
-          $destination = "E:\NEWWEB"
+          $destination = "E:\NEWWEB\DEMO"
             
           # Crear la carpeta destino si no existe
           if (!(Test-Path -Path $destination)) {
