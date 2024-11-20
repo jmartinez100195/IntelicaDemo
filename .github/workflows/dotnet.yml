@@ -20,7 +20,7 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Navigate to the project directory
-      working-directory: Intelica.Authentication.API
+      working-directory: Intelica.Authentication.Backend/Intelica.Authentication.API
       run: pwd  # Verifica que estás en la carpeta correcta
 
     - name: Restore dependencies
