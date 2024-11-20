@@ -31,7 +31,7 @@ jobs:
         path: ./output
 
   deploy:
-    runs-on: sever-app
+    runs-on: server-app
     needs: build 
     
     steps:
