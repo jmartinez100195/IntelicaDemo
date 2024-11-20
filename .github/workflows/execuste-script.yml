@@ -26,5 +26,5 @@ jobs:
         }
     
         # Ejecuta el script SQL usando sqlcmd
-        sqlcmd -S $server -d $database -U $user -P $password -b -i $scriptPath
+        sqlcmd -S 172.0.3.170\QA -d ASSOCINV -U WEBAPPUSR -P `"thAC18F4Lfn9rH75`" -b -i $scriptPath
       shell: pwsh
