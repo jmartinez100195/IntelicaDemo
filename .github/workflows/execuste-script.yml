@@ -1,1 +1,26 @@
-xd
+name: Execute SQL Script
+
+on:
+  workflow_dispatch:
+
+jobs:
+  execute-sql:
+    runs-on: db-hosted
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Execute SQL Script
+      run: |
+        $connectionString = "Server=172.0.2.213;Database=${{ secrets.DB_NAME }};User Id=WEBDEVUSR;Password=W3bdevusr;"
+        $scriptPath = "$(pwd)/script.sql" # Ruta al archivo SQL descargado del repositorio
+
+        # Verifica que el archivo SQL existe
+        if (!(Test-Path -Path $scriptPath)) {
+          Write-Error "El archivo SQL no existe en la ruta especificada: $scriptPath"
+        }
+
+        # Ejecuta el script SQL
+        Invoke-Sqlcmd -ConnectionString $connectionString -InputFile $scriptPath
+      shell: pwsh
